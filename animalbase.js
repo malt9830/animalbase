@@ -12,6 +12,7 @@ const Animal = {
   type: "",
   age: 0,
   star: false,
+  winner: false,
 };
 
 function start() {
@@ -136,13 +137,21 @@ function displayAnimal(animal) {
   clone.querySelector("[data-field=type]").textContent = animal.type;
   clone.querySelector("[data-field=age]").textContent = animal.age;
   clone.querySelector("[data-field=star").addEventListener("click", toggleStar);
+  clone
+    .querySelector("[data-field=winner]")
+    .addEventListener("click", toggleTrophy);
   if (animal.star === false) {
     clone.querySelector("[data-field=star]").textContent = "☆";
   } else {
     clone.querySelector("[data-field=star]").textContent = "⭐";
   }
+  if (animal.winner === false) {
+    clone.querySelector("[data-field=winner]").classList.add("loser");
+  } else {
+    clone.querySelector("[data-field=winner]").classList.remove("loser");
+  }
 
-  function toggleStar(event) {
+  function toggleStar() {
     if (animal.star === false) {
       animal.star = true;
     } else {
@@ -152,8 +161,118 @@ function displayAnimal(animal) {
     displayList(alteredAnimals);
   }
 
+  function toggleTrophy() {
+    const winners = getWinners();
+    const winnerTypes = getWinnerTypes(winners);
+
+    if (animal.winner === false) {
+      if (winners.length < 2) {
+        if (winnerTypes.some((element) => element === animal.type) === false) {
+          animal.winner = true;
+        } else {
+          showErrorBox(winners, "type");
+        }
+      } else {
+        showErrorBox(winners, "total");
+      }
+    } else {
+      animal.winner = false;
+    }
+
+    displayList(alteredAnimals);
+  }
+
   // append clone to list
   document.querySelector("#list tbody").appendChild(clone);
+}
+
+function showErrorBox(winners, errorType) {
+  document.querySelector("#error").style.display = "block";
+  document
+    .querySelector("#error-shadow")
+    .addEventListener("click", hideErrorBox);
+
+  document.querySelector("#error-container").innerHTML = ``;
+
+  if (errorType === "type") {
+    showTypeError(winners);
+  } else if (errorType === "total") {
+    showTotalError(winners);
+  }
+}
+
+function showTypeError(winners) {
+  document.querySelector(
+    "#error-text"
+  ).textContent = `You can only have one winner of a type`;
+
+  const animal = winners[0];
+
+  const clone = document
+    .querySelector("template#animal-error")
+    .cloneNode(true).content;
+  clone.querySelector(
+    ".animal-name"
+  ).textContent = `${animal.name} the ${animal.desc} ${animal.type}`;
+  clone.querySelector("button").addEventListener("click", removeWinner);
+  document.querySelector("#error-container").appendChild(clone);
+
+  function removeWinner() {
+    animal.winner = false;
+
+    hideErrorBox();
+    displayList(alteredAnimals);
+  }
+}
+
+function showTotalError(winners) {
+  document.querySelector(
+    "#error-text"
+  ).textContent = `You can only have two winners in total`;
+
+  winners.forEach((animal, index) => {
+    const clone = document
+      .querySelector("template#animal-error")
+      .cloneNode(true).content;
+    clone.querySelector(
+      ".animal-name"
+    ).textContent = `${animal.name} the ${animal.desc} ${animal.type}`;
+    clone.querySelector("button").addEventListener("click", removeWinner);
+    clone.querySelector("button").setAttribute("index", index);
+    document.querySelector("#error-container").appendChild(clone);
+  });
+
+  function removeWinner() {
+    const winnerIndex = event.target.getAttribute("index");
+    winners[winnerIndex].winner = false;
+
+    hideErrorBox();
+    displayList(alteredAnimals);
+  }
+}
+
+function hideErrorBox() {
+  document.querySelector("#error").style.display = "none";
+}
+
+function getWinners() {
+  return alteredAnimals.filter(isWinner);
+}
+
+function isWinner(animal) {
+  if (animal.winner === true) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function getWinnerTypes(winners) {
+  const animalTypes = [];
+  winners.forEach((winner) => {
+    animalTypes.push(winner.type);
+  });
+  return animalTypes;
 }
 
 function isLeapYear(year) {

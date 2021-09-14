@@ -21,6 +21,7 @@
     <table id="list">
       <thead>
         <tr id="sorting">
+          <th data-action="sort" data-sort-direction="asc" data-sort="winner">🏆</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="star">⭐</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="name">Name</th>
           <th data-action="sort" data-sort-direction="asc" data-sort="type">Type</th>
@@ -35,6 +36,7 @@
 
     <template id="animal">
       <tr>
+        <td data-field="winner">🏆</td>
         <td data-field="star">STAR</td>
         <td data-field="name">NAME</td>
         <td data-field="type">TYPE</td>
@@ -42,8 +44,21 @@
         <td data-field="age">AGE</td>
       </tr>
     </template>
+    <template id="animal-error">
+      <div class="animal-error-text">
+        <button>Remove</button>
+        <p class="animal-name"></p>
+      </div>
+    </template>
 
-    
+    <div id="error" style="display: none;">
+      <div id="error-shadow"></div>
+      <div id="error-box">
+        <div id="error-text"></div>
+        <p>You can remove the current ones</p>
+        <div id="error-container"></div>
+      </div>
+    </div>
     <script src="animalbase.js"></script>
   </body>
 </html>
